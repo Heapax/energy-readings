@@ -1,0 +1,50 @@
+# --- Global ---
+global:
+  assignmentId: "a4f8e231-7c6d-4b92-83d5-1e9f0a2b5c7d"
+
+# --- Redis ---
+redis:
+  image:
+    repository: redis
+    tag: "7-alpine"
+    pullPolicy: IfNotPresent
+  port: 6379
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+
+# --- Ingestion API ---
+ingestionApi:
+  image:
+    repository: ingestion-api
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  port: 3000
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
+
+# --- Processing Service ---
+processingService:
+  image:
+    repository: processing-service
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 3001
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "250m"
+      memory: "256Mi"
