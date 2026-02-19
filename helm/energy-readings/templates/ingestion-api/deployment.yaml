@@ -40,7 +40,7 @@ spec:
               value: {{ .Values.redis.port | quote }}
           livenessProbe:
             httpGet:
-              path: /health
+              path: /live
               port: http
             initialDelaySeconds: 60
             periodSeconds: 15
