@@ -35,6 +35,11 @@ const readingSchema = {
 
 // --- Routes ----
 
+// GET /live
+app.get('/live', async (_request, reply) => {
+  return reply.code(200).send({ status: 'alive' })
+})
+
 // POST /readings
 app.post('/readings', { schema: readingSchema }, async (request, reply) => {
   const { site_id, device_id, power_reading, timestamp } = request.body

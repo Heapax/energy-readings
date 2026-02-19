@@ -106,6 +106,11 @@ async function consumerLoop () {
 
 // --- Routes ---
 
+// GET /live
+app.get('/live', async (_request, reply) => {
+  return reply.code(200).send({ status: 'alive', consumer: CONSUMER_NAME })
+})
+
 // GET /sites/:site_id/readings
 app.get('/sites/:site_id/readings', async (request, reply) => {
   const { site_id } = request.params
