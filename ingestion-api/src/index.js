@@ -6,17 +6,32 @@ const REDIS_HOST = process.env.REDIS_HOST || 'localhost'
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379', 10)
 const PORT = parseInt(process.env.PORT || '3000', 10)
 const STREAM_NAME = 'energy_readings'
+const REDIS_RETRY_ATTEMPTS = 10
+const REDIS_RETRY_BASE_MS = 1000
 
-const app = Fastify({ 
+const app = Fastify({
   logger: true
 })
 
-// --- Redis ---
-await app.register(fastifyRedis, {
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  closeClient: true
-})
+// --- Redis (with retry / exponential backoff for K8s startup) ---
+async function registerRedisWithRetry () {
+  for (let attempt = 1; attempt <= REDIS_RETRY_ATTEMPTS; attempt++) {
+    try {
+      await app.register(fastifyRedis, {
+        host: REDIS_HOST,
+        port: REDIS_PORT,
+        closeClient: true
+      })
+      return
+    } catch (err) {
+      app.log.warn({ err, attempt, max: REDIS_RETRY_ATTEMPTS }, 'Redis connection failed, retrying...')
+      if (attempt === REDIS_RETRY_ATTEMPTS) throw err
+      const delay = REDIS_RETRY_BASE_MS * Math.pow(2, attempt - 1)
+      await new Promise(r => setTimeout(r, delay))
+    }
+  }
+}
+await registerRedisWithRetry()
 
 // --- Schema ---
 const readingSchema = {
