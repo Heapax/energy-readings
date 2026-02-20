@@ -19,7 +19,7 @@ helm template energy-readings helm/energy-readings
 (build images locally first since no registry is involved)
 
 ```sh
-kind create cluster --name panoramic
+kind create cluster --name energy-readings
 ```
 
 Load locally-built images into kind (no registry needed)
@@ -27,8 +27,8 @@ Load locally-built images into kind (no registry needed)
 ```sh
 docker build -t ingestion-api:latest ./ingestion-api
 docker build -t processing-service:latest ./processing-service
-kind load docker-image ingestion-api:latest --name panoramic
-kind load docker-image processing-service:latest --name panoramic
+kind load docker-image ingestion-api:latest --name energy-readings
+kind load docker-image processing-service:latest --name energy-readings
 ```
 
 Install the chart
