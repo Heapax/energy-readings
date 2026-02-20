@@ -53,18 +53,21 @@ kubectl port-forward svc/energy-readings-processing-service 3001:3001 &
 ```
 
 ```sh
-curl -X POST http://localhost:3000/readings \
+curl -X POST http://127.0.0.1:3000/readings \
   -H "Content-Type: application/json" \
   -d '{"site_id":"site-001","device_id":"meter-42","power_reading":1500.5,"timestamp":"2024-01-15T10:30:00Z"}'
 ```
 
 ```sh
-curl http://localhost:3001/sites/site-001/readings
+curl http://127.0.0.1:3001/sites/site-001/readings
 ```
 
 ## Key design decisions
 
 - **`_helpers.tpl` for shared labels** - The `assignment-id` UUID is defined once in the `values.yaml` and stamped on every resource via the `energy-readings.labels` helper. No chance of a typo mismatch across files.
+
 - **Redis hostname via release name** - `{{ .Release.Name }}-redis` means the service name is always consistent with the  release, so you can install the chart multiple times in different namespaces (e.g., staging vs prod) without Redis hostnames colliding.
+
 - **`replicaCount: 1` for processing-service** - Set intentionally low because KEDA will take over autoscaling based on the Redis Stream backlog. Having `replicaCount` in `values.yaml` still lets you override it manually if needed.
+
 - **`pullPolicy: IfNotPresent`** - Safe default for production, use `--set *.image.pullPolicy=Never` for local kind/minikube where images are loaded directly.
