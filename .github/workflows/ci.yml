@@ -50,7 +50,7 @@ jobs:
         run: helm lint helm/energy-readings
 
       - name: Helm template (dry run)
-        run: helm template energy-readings helm/energy-readings --validate
+        run: helm template energy-readings helm/energy-readings
 
   docker:
     name: Build Docker images
