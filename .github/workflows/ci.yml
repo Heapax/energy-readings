@@ -1,0 +1,94 @@
+# CI/CD: validate, build Docker images, Helm lint/template
+# Runs on push and pull_request to main (and all branches if you change the branches filter).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint & validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install and build UI
+        run: |
+          cd ui
+          npm ci
+          npm run build
+
+      - name: Install ingestion-api dependencies
+        run: |
+          cd ingestion-api
+          npm ci
+
+      - name: Install processing-service dependencies
+        run: |
+          cd processing-service
+          npm ci
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "v3.16.0"
+
+      - name: Helm lint
+        run: helm lint helm/energy-readings
+
+      - name: Helm template (dry run)
+        run: helm template energy-readings helm/energy-readings --validate
+
+  docker:
+    name: Build Docker images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ingestion-api image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./ingestion-api
+          push: false
+          load: true
+          tags: ingestion-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build processing-service image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./processing-service
+          push: false
+          load: true
+          tags: processing-service:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build web UI image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./ui
+          push: false
+          load: true
+          tags: energy-readings-ui:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
