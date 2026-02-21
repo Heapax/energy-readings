@@ -36,6 +36,24 @@ curl -s -X POST http://127.0.0.1:3000/readings \
 curl -s http://127.0.0.1:3001/sites/site-001/readings
 ```
 
+**Simulate load:**
+
+```sh
+for round in 1 2 3 4 5; do
+  for i in $(seq 1 30); do
+    p_int=$((100 + RANDOM % 9900))
+    p_dec=$((RANDOM % 10))
+    p="${p_int}.${p_dec}"
+    ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+    curl -s -X POST http://localhost:3000/readings \
+      -H "Content-Type: application/json" \
+      -d "{\"site_id\":\"site-001\",\"device_id\":\"meter-$round-$i\",\"power_reading\":$p,\"timestamp\":\"$ts\"}" &
+  done
+  wait
+  sleep 2
+done
+```
+
 ### Option 2: Node.js + Redis
 
 1. Start Redis: `docker run -d --name redis -p 6379:6379 redis:7-alpine`
