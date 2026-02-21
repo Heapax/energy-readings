@@ -27,8 +27,10 @@ Load locally-built images into kind (no registry needed)
 ```sh
 docker build -t ingestion-api:latest ./ingestion-api
 docker build -t processing-service:latest ./processing-service
+docker build -t energy-readings-ui:latest ./ui
 kind load docker-image ingestion-api:latest --name energy-readings
 kind load docker-image processing-service:latest --name energy-readings
+kind load docker-image energy-readings-ui:latest --name energy-readings
 ```
 
 Install the chart
@@ -36,7 +38,8 @@ Install the chart
 ```sh
 helm install energy-readings helm/energy-readings \
   --set ingestionApi.image.pullPolicy=Never \
-  --set processingService.image.pullPolicy=Never
+  --set processingService.image.pullPolicy=Never \
+  --set webUi.image.pullPolicy=Never
 ```
 
 4. Verify everything is running
@@ -50,7 +53,10 @@ kubectl get pods,svc
 ```sh
 kubectl port-forward svc/energy-readings-ingestion-api 3000:3000 &
 kubectl port-forward svc/energy-readings-processing-service 3001:3001 &
+kubectl port-forward svc/energy-readings-web-ui 8080:80 &
 ```
+
+Open http://localhost:8080 for the Web UI (use API URLs http://localhost:3000 and http://localhost:3001 when prompted, or leave defaults).
 
 ```sh
 curl -X POST http://127.0.0.1:3000/readings \

@@ -1,0 +1,128 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+}
+
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.card h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: #58a6ff;
+}
+
+.hint {
+  font-size: 0.8125rem;
+  color: #8b949e;
+  margin: 0 0 0.75rem 0;
+}
+
+label {
+  display: block;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: #8b949e;
+}
+
+label + label {
+  margin-top: 0.75rem;
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #e6edf3;
+}
+
+input::placeholder {
+  color: #484f58;
+}
+
+input:focus {
+  outline: none;
+  border-color: #58a6ff;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #238636;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: #2ea043;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.status.success {
+  color: #3fb950;
+}
+
+.status.error {
+  color: #f85149;
+}
+
+.readings {
+  margin-top: 1rem;
+}
+
+.readings p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.readings table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.readings th,
+.readings td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #30363d;
+}
+
+.readings th {
+  color: #8b949e;
+  font-weight: 500;
+}
+
+.readings tbody tr:last-child td {
+  border-bottom: none;
+}

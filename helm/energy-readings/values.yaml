@@ -51,6 +51,22 @@ processingService:
       cpu: "250m"
       memory: "256Mi"
 
+# --- Web UI ---
+webUi:
+  image:
+    repository: energy-readings-ui
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 80
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "32Mi"
+    limits:
+      cpu: "100m"
+      memory: "64Mi"
+
 # --- KEDA ---
 keda:
   enabled: true
