@@ -67,20 +67,33 @@ button {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  background: #238636;
-  color: #fff;
-  border: none;
+  background: #21262d;
+  color: #e6edf3;
+  border: 1px solid #30363d;
   border-radius: 6px;
   cursor: pointer;
 }
 
 button:hover:not(:disabled) {
-  background: #2ea043;
+  background: #30363d;
+  border-color: #8b949e;
 }
 
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Primary action buttons (forms) */
+button[type="submit"] {
+  background: #1f6feb;
+  border-color: #1f6feb;
+  color: #fff;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: #388bfd;
+  border-color: #388bfd;
 }
 
 .status {
@@ -121,6 +134,27 @@ button:disabled {
 .readings th {
   color: #8b949e;
   font-weight: 500;
+}
+
+.readings .th-sort {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  margin: -0.5rem -0.75rem; /* align with th cell */
+  width: calc(100% + 1.5rem);
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  background: transparent !important;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 500;
+}
+
+.readings .th-sort:hover {
+  color: #58a6ff;
+  background: #21262d !important;
 }
 
 .readings tbody tr:last-child td {

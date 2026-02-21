@@ -24,6 +24,32 @@ export default function App() {
   const [readings, setReadings] = useState(null)
   const [fetchError, setFetchError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [sortBy, setSortBy] = useState(null) // 'device_id' | 'power_reading' | 'timestamp'
+  const [sortDir, setSortDir] = useState('asc') // 'asc' | 'desc'
+
+  function handleSort(column) {
+    if (sortBy === column) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortBy(column)
+      setSortDir('asc')
+    }
+  }
+
+  function getSortedReadings() {
+    if (!readings?.readings?.length) return []
+    const list = [...readings.readings]
+    if (!sortBy) return list
+    const dir = sortDir === 'asc' ? 1 : -1
+    return list.sort((a, b) => {
+      const av = a[sortBy]
+      const bv = b[sortBy]
+      if (sortBy === 'power_reading') {
+        return dir * (Number(av) - Number(bv))
+      }
+      return dir * String(av).localeCompare(String(bv))
+    })
+  }
 
   async function handleSendReading(e) {
     e.preventDefault()
@@ -69,6 +95,8 @@ export default function App() {
     }
     setFetchError(null)
     setReadings(null)
+    setSortBy(null)
+    setSortDir('asc')
     setLoading(true)
     try {
       const res = await fetch(`${processingBase(processingUrl)}/sites/${encodeURIComponent(sid)}/readings`)
@@ -188,13 +216,25 @@ export default function App() {
             <table>
               <thead>
                 <tr>
-                  <th>Device</th>
-                  <th>Power</th>
-                  <th>Timestamp</th>
+                  <th>
+                    <button type="button" className="th-sort" onClick={() => handleSort('device_id')} title="Sort by Device">
+                      Device {sortBy === 'device_id' && (sortDir === 'asc' ? '↑' : '↓')}
+                    </button>
+                  </th>
+                  <th>
+                    <button type="button" className="th-sort" onClick={() => handleSort('power_reading')} title="Sort by Power">
+                      Power {sortBy === 'power_reading' && (sortDir === 'asc' ? '↑' : '↓')}
+                    </button>
+                  </th>
+                  <th>
+                    <button type="button" className="th-sort" onClick={() => handleSort('timestamp')} title="Sort by Timestamp">
+                      Timestamp {sortBy === 'timestamp' && (sortDir === 'asc' ? '↑' : '↓')}
+                    </button>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {readings.readings.map((r, i) => (
+                {getSortedReadings().map((r, i) => (
                   <tr key={r.stream_id || i}>
                     <td>{r.device_id}</td>
                     <td>{r.power_reading}</td>
