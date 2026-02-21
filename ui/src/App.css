@@ -118,10 +118,57 @@ button[type="submit"]:hover:not(:disabled) {
   font-size: 0.875rem;
 }
 
+.readings-table-wrap {
+  position: relative;
+}
+
 .readings table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8125rem;
+}
+
+/* Load-more: gradient overlay at bottom + arrow; click expands to show all readings */
+.readings-load-more {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 110px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent !important;
+  border: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+.readings-load-more:hover {
+  background: transparent !important;
+}
+
+.readings-load-more:hover .readings-load-more-arrow {
+  color: #58a6ff;
+}
+
+.readings-load-more-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #161b22 0%, rgba(22, 27, 34, 0.92) 40%, transparent 100%);
+  pointer-events: none;
+}
+
+.readings-load-more-arrow {
+  position: relative;
+  z-index: 1;
+  font-size: 1.25rem;
+  color: #8b949e;
+  pointer-events: none;
+  transition: color 0.15s ease;
 }
 
 .readings th,

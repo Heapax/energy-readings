@@ -26,6 +26,8 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [sortBy, setSortBy] = useState(null) // 'device_id' | 'power_reading' | 'timestamp'
   const [sortDir, setSortDir] = useState('asc') // 'asc' | 'desc'
+  const [visibleCount, setVisibleCount] = useState(20)
+  const READINGS_PAGE_SIZE = 25
 
   function handleSort(column) {
     if (sortBy === column) {
@@ -49,6 +51,14 @@ export default function App() {
       }
       return dir * String(av).localeCompare(String(bv))
     })
+  }
+
+  const sortedReadings = getSortedReadings()
+  const displayedReadings = sortedReadings.slice(0, visibleCount)
+  const hasMore = sortedReadings.length > visibleCount
+
+  function handleLoadMore() {
+    setVisibleCount(sortedReadings.length)
   }
 
   async function handleSendReading(e) {
@@ -97,6 +107,7 @@ export default function App() {
     setReadings(null)
     setSortBy(null)
     setSortDir('asc')
+    setVisibleCount(READINGS_PAGE_SIZE)
     setLoading(true)
     try {
       const res = await fetch(`${processingBase(processingUrl)}/sites/${encodeURIComponent(sid)}/readings`)
@@ -212,37 +223,51 @@ export default function App() {
         {fetchError && <p className="status error">{fetchError}</p>}
         {readings && (
           <div className="readings">
-            <p><strong>{readings.site_id}</strong> — {readings.count} reading(s)</p>
-            <table>
-              <thead>
-                <tr>
-                  <th>
-                    <button type="button" className="th-sort" onClick={() => handleSort('device_id')} title="Sort by Device">
-                      Device {sortBy === 'device_id' && (sortDir === 'asc' ? '↑' : '↓')}
-                    </button>
-                  </th>
-                  <th>
-                    <button type="button" className="th-sort" onClick={() => handleSort('power_reading')} title="Sort by Power">
-                      Power {sortBy === 'power_reading' && (sortDir === 'asc' ? '↑' : '↓')}
-                    </button>
-                  </th>
-                  <th>
-                    <button type="button" className="th-sort" onClick={() => handleSort('timestamp')} title="Sort by Timestamp">
-                      Timestamp {sortBy === 'timestamp' && (sortDir === 'asc' ? '↑' : '↓')}
-                    </button>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {getSortedReadings().map((r, i) => (
-                  <tr key={r.stream_id || i}>
-                    <td>{r.device_id}</td>
-                    <td>{r.power_reading}</td>
-                    <td>{r.timestamp}</td>
+            <p><strong>{readings.site_id}</strong> — {readings.count} reading(s) {hasMore && `(showing ${displayedReadings.length})`}</p>
+            <div className="readings-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>
+                      <button type="button" className="th-sort" onClick={() => handleSort('device_id')} title="Sort by Device">
+                        Device {sortBy === 'device_id' && (sortDir === 'asc' ? '↑' : '↓')}
+                      </button>
+                    </th>
+                    <th>
+                      <button type="button" className="th-sort" onClick={() => handleSort('power_reading')} title="Sort by Power">
+                        Power {sortBy === 'power_reading' && (sortDir === 'asc' ? '↑' : '↓')}
+                      </button>
+                    </th>
+                    <th>
+                      <button type="button" className="th-sort" onClick={() => handleSort('timestamp')} title="Sort by Timestamp">
+                        Timestamp {sortBy === 'timestamp' && (sortDir === 'asc' ? '↑' : '↓')}
+                      </button>
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {displayedReadings.map((r, i) => (
+                    <tr key={r.stream_id || i}>
+                      <td>{r.device_id}</td>
+                      <td>{r.power_reading}</td>
+                      <td>{r.timestamp}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {hasMore && (
+                <button
+                  type="button"
+                  className="readings-load-more"
+                  onClick={handleLoadMore}
+                  title="Show more readings"
+                  aria-label="Show more readings"
+                >
+                  <span className="readings-load-more-gradient" />
+                  <span className="readings-load-more-arrow">▼</span>
+                </button>
+              )}
+            </div>
           </div>
         )}
       </section>
