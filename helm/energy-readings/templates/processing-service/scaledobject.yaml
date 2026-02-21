@@ -1,0 +1,40 @@
+{{- if .Values.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ .Release.Name }}-processing-service
+  labels:
+    {{- include "energy-readings.labels" . | nindent 4 }}
+    app.kubernetes.io/component: processing-service
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Release.Name }}-processing-service
+
+  # --- Scaling bounds ---
+  minReplicaCount: {{ .Values.keda.processingService.minReplicas }}
+  maxReplicaCount: {{ .Values.keda.processingService.maxReplicas }}
+
+  # --- Timing ---
+  pollingInterval: {{ .Values.keda.processingService.pollingInterval }}
+  cooldownPeriod:  {{ .Values.keda.processingService.cooldownPeriod }}
+
+  triggers:
+    - type: redis-streams
+      metadata:
+        # Which stream + consumer group to watch
+        stream: energy_readings
+        consumerGroup: processing_group
+
+        # Scale up when pending entries per replica exceeds this threshold.
+        # e.g. 6 pending / threshold 2 = 3 replicas
+        pendingEntriesCount: {{ .Values.keda.processingService.pendingEntriesThreshold | quote }}
+
+        # Redis address is provided via TriggerAuthentication (secret energy-readings-keda-redis)
+        databaseIndex: "0"
+        enableTLS: "false"
+
+      authenticationRef:
+        name: {{ .Release.Name }}-keda-redis-auth
+{{- end }}

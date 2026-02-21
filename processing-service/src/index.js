@@ -10,9 +10,11 @@ const PORT = parseInt(process.env.PORT || '3001', 10)
 const STREAM_NAME = 'energy_readings'
 const GROUP_NAME = 'processing_group'
 const CONSUMER_NAME = `consumer-${hostname()}`  // unique per pod replica
-const BLOCK_MS = 5000 // block up to 5s wating for messages
+const BLOCK_MS = 5000 // block up to 5s waiting for messages
 const BATCH_SIZE = 10 // messages per XREADGROUP call
 const REDIS_RETRY_ATTEMPTS = 10
+// Optional delay (ms) per message before ACK — keeps messages "pending" so KEDA can see backlog (demo only)
+const DEMO_DELAY_MS = parseInt(process.env.PROCESSING_DEMO_DELAY_MS || '0', 10)
 const REDIS_RETRY_BASE_MS = 1000
 
 // --- App ---
@@ -102,6 +104,10 @@ async function consumerLoop () {
         for (const [id, fields] of messages) {
           try {
             await processMessage(id, fields)
+            // Optional demo delay: keep message "pending" so KEDA sees backlog and scales up
+            if (DEMO_DELAY_MS > 0) {
+              await new Promise(r => setTimeout(r, DEMO_DELAY_MS))
+            }
             // XACK only after successful processing — at-least-once guarantee
             await app.redis.xack(STREAM_NAME, GROUP_NAME, id)
           } catch (err) {

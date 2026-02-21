@@ -41,6 +41,8 @@ processingService:
     pullPolicy: IfNotPresent
   replicaCount: 1
   port: 3001
+  # Delay (ms) per message before ACK so KEDA sees pending backlog; set to 1500 for demo, 0 for production
+  demoDelayMs: 0
   resources:
     requests:
       cpu: "100m"
@@ -48,3 +50,13 @@ processingService:
     limits:
       cpu: "250m"
       memory: "256Mi"
+
+# --- KEDA ---
+keda:
+  enabled: true
+  processingService:
+    minReplicas: 1
+    maxReplicas: 10
+    pendingEntriesThreshold: 2
+    cooldownPeriod: 30
+    pollingInterval: 5

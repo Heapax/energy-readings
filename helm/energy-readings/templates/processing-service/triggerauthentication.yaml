@@ -1,0 +1,14 @@
+{{- if .Values.keda.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ .Release.Name }}-keda-redis-auth
+  labels:
+    {{- include "energy-readings.labels" . | nindent 4 }}
+    app.kubernetes.io/component: processing-service
+spec:
+  secretTargetRef:
+    - parameter: address # provides Redis host:port to the redis-streams scaler
+      name: {{ .Release.Name }}-keda-redis
+      key: address
+{{- end }}
