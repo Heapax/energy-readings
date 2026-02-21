@@ -77,3 +77,12 @@ curl http://127.0.0.1:3001/sites/site-001/readings
 - **`replicaCount: 1` for processing-service** - Set intentionally low because KEDA will take over autoscaling based on the Redis Stream backlog. Having `replicaCount` in `values.yaml` still lets you override it manually if needed.
 
 - **`pullPolicy: IfNotPresent`** - Safe default for production, use `--set *.image.pullPolicy=Never` for local kind/minikube where images are loaded directly.
+
+## CI/CD (GitHub Actions)
+
+The repo includes a CI workflow at `.github/workflows/ci.yml` that runs on push and pull requests to `main`:
+
+- **Validate** – Node 20: install deps and build the UI, install deps for ingestion-api and processing-service; Helm lint and `helm template` (dry run) for the chart.
+- **Docker** – Build all three images (ingestion-api, processing-service, energy-readings-ui) with Buildx; images are not pushed (build-only).
+
+To run the same checks locally: `helm lint helm/energy-readings`, `helm template energy-readings helm/energy-readings`, and `docker build` for each app.
